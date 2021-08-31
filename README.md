@@ -8,3 +8,5 @@ If you want to enjoy watching movies in 4K you'll need to run a VPN or have Stre
 
 # How to Install
 MagiskManager > Modules > Downloads/ttlchanger.zip > Reboot
+
+I kang this code from my comrade Dennys. водка!!
