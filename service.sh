@@ -25,6 +25,7 @@ filter_ttl_65(){
 
     filter_interface $table 'rmnet0'
     filter_interface $table 'swlan0'
+    filter_interface $table 'wlan0'
 
     ip rule add fwmark 64 table 164
     ip route add default dev lo table 164
