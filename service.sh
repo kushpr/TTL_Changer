@@ -23,10 +23,14 @@ filter_ttl_65(){
     iptables -t filter -A $table -m ttl --ttl-eq 63 -j RETURN
     iptables -t filter -A $table -j CONNMARK --set-mark 64
 
+    filter_interface $table 'dummy0' 
     filter_interface $table 'rmnet0'
+    filter_interface $table 'rmnet1'
     filter_interface $table 'swlan0'
     filter_interface $table 'wlan0'
-
+    filter_interface $table 'eth0'
+    filter_interface $table 'lo'
+    
     ip rule add fwmark 64 table 164
     ip route add default dev lo table 164
     ip route flush cache
