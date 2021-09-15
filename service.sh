@@ -1,53 +1,47 @@
 #!/system/bin/sh
 MODDIR=${0%/*}
 
-set_ttl_65(){	
+ set_ttl_65()
+{
   echo 65 > /proc/sys/net/ipv4/ip_default_ttl
+  echo 65 > /proc/sys/net/ipv6/conf/all/hop_limit
+  echo 65 > /proc/sys/net/ipv6/conf/ip6_vti0/hop_limit
+  echo 1 > /proc/sys/net/ipv4/ip_forward 
 }
-
-filter_interface(){	
-  table="$1"
-  int="$2"
-  iptables -t filter -D OUTPUT -o "$int" -j $table
-  iptables -t filter -D FORWARD -o "$int" -j $table
- 	iptables -t filter -I OUTPUT -o "$int" -j $table
-  iptables -t filter -I FORWARD -o "$int" -j $table
+mark_traffic_ttl()
+{  
+   iptables -t mangle -A PREROUTING -i v4-rmnet0 -j TTL --ttl-set 65
+   iptables -t mangle -A PREROUTING -i rmnet0 -j TTL --ttl-set 65
+   iptables -t mangle -A PREROUTING -i rmnet1 -j TTL --ttl-set 65
+   iptables -t mangle -A PREROUTING -i ap0 -j TTL --ttl-set 65
+   iptables -t mangle -A PREROUTING -i swlan0 -j TTL --ttl-set 65
+   iptables -t mangle -A PREROUTING -i tun0 -j TTL --ttl-set 65
+   iptables -t mangle -A PREROUTING -i ipv6_vti0 -j TTL --ttl-set 65
+   iptables -t mangle -A PREROUTING -i rmnet_data0 -j TTL --ttl-set 65
+   iptables -t mangle -A PREROUTING -i rmnet_data1 -j TTL --ttl-set 65
 }
-
-filter_ttl_65(){
-  table="$1"
-  if `grep -q ttl /proc/net/ip_tables_matches` ; then
-    iptables -t filter -F $table
-    iptables -t filter -N $table
-    iptables -t filter -A $table -m ttl --ttl-lt 63 -j REJECT
-    iptables -t filter -A $table -m ttl --ttl-eq 63 -j RETURN
-    iptables -t filter -A $table -j CONNMARK --set-mark 64
-
-    filter_interface $table 'dummy0' 
-    filter_interface $table 'rmnet0'
-    filter_interface $table 'rmnet1'
-    filter_interface $table 'swlan0'
-    filter_interface $table 'wlan0'
-    filter_interface $table 'eth0'
-    filter_interface $table 'lo'
-    filter_interface $table 'tun0'
-    
-    ip rule add fwmark 64 table 164
-    ip route add default dev lo table 164
-    ip route flush cache
-  fi
+route_hotspottraffic_tovpn()
+{
+ iptables -t nat -I POSTROUTING 1 -o tun0 -j MASQUERADE
+ iptables -I FORWARD 1 -i tun0 -o swlan0 -m state --state RELATED,ESTABLISHED -j ACCEPT 
+ iptables -I FORWARD 1 -i swlan0 -o tun0 -j ACCEPT
 }
-
 settings put global tether_dun_required 0
 
-echo 65 > /proc/sys/net/ipv6/conf/all/hop_limit
-
-if [ -x "$(command -v iptables)" ];then
-  if `grep -q TTL /proc/net/ip_tables_targets` ; then
-    iptables -t mangle -A POSTROUTING -j TTL --ttl-set 65
-  else	
-    set_ttl_65		filter_ttl_64 sort_out_interface	
-  fi
+if [ -x "$(command -v iptables)" ]
+then
+	if grep -q TTL /proc/net/ip_tables_targets
+	then
+		iptables -t mangle -A PREROUTING -i rmnet0 -j TTL --ttl-set 65
+        iptables -t mangle -A PREROUTING -i rmnet1 -j TTL --ttl-set 65
+        iptables -t mangle -A PREROUTING -i rmnet_data0 -j TTL --ttl-set 65
+        iptables -t mangle -A PREROUTING -i swlan0 -j TTL --ttl-set 65
+        iptables -t mangle -A PREROUTING -i tun0 -j TTL --ttl-set 65
+	else
+		set_ttl_65
+		mark_traffic_ttl
+        route_hotspottraffic_tovpn
+	fi
 else
-  set_ttl_65
+	set_ttl_65
 fi
