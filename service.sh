@@ -8,11 +8,10 @@ set_ttl_65()
   echo 1 > /proc/sys/net/ipv4/ip_forward
   echo 1 > /proc/sys/net/ipv4/conf/all/forwarding
   echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6
+  echo 1 > /proc/sys/net/ipv6/conf/all/forwarding
 }
 mark_traffic_ttl()
 {  
-   iptables -t mangle -A PREROUTING -i lo -j TTL --ttl-set 65
-   
    iptables -t mangle -A PREROUTING -i p2p0 -j TTL --ttl-set 65
    
    iptables -t mangle -A PREROUTING -i v4-rmnet0 -j TTL --ttl-set 65
@@ -41,14 +40,12 @@ route_hotspottraffic_tovpn()
    
    iptables -I FORWARD 1 -i swlan0 -o tun0 -j ACCEPT
 }
-settings put global tether_dun_required false
+settings put global tether_dun_required 0
 
 if [ -x "$(command -v iptables)" ]
 then
 	if [ `grep -q TTL /proc/net/ip_tables_targets` ]
 	then
-         iptables -t mangle -A PREROUTING -i lo -j TTL --ttl-set 65
-         
          iptables -t mangle -A PREROUTING -i p2p0 -j TTL --ttl-set 65
          
          iptables -t mangle -A PREROUTING -i v4-rmnet0 -j TTL --ttl-set 65
