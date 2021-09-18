@@ -12,8 +12,6 @@ set_ttl_65()
 }
 mark_traffic_ttl()
 {  
-   iptables -t mangle -A PREROUTING -i lo -j TTL --ttl-set 65
-   
    iptables -t mangle -A PREROUTING -i p2p0 -j TTL --ttl-set 65
    
    iptables -t mangle -A PREROUTING -i v4-rmnet0 -j TTL --ttl-set 65
@@ -36,20 +34,18 @@ mark_traffic_ttl()
 }
 route_hotspottraffic_tovpn()
 {
-   iptables -t nat -I POSTROUTING 1 -o tun0 -j MASQUERADE
+   iptables -A FORWARD -i swlan0 -o tun0 -j ACCEPT
    
-   iptables -I FORWARD 1 -i tun0 -o swlan0 -m state --state RELATED,ESTABLISHED -j ACCEPT 
-   
-   iptables -I FORWARD 1 -i swlan0 -o tun0 -j ACCEPT
+   iptables -A FORWARD -i tun0 -o swlan0 -m state --state ESTABLISHED,RELATED \
+            -j ACCEPT
+   iptables -t nat -A POSTROUTING -o tun0 -j MASQUERADE
 }
-settings put global tether_dun_required false
+settings put global tether_dun_required 0
 
 if [ -x "$(command -v iptables)" ]
 then
 	if [ `grep -q TTL /proc/net/ip_tables_targets` ]
 	then
-         iptables -t mangle -A PREROUTING -i lo -j TTL --ttl-set 65
-         
          iptables -t mangle -A PREROUTING -i p2p0 -j TTL --ttl-set 65
          
          iptables -t mangle -A PREROUTING -i v4-rmnet0 -j TTL --ttl-set 65
@@ -73,4 +69,7 @@ then
 		set_ttl_65
 		mark_traffic_ttl
         route_hotspottraffic_tovpn
-fi 
+	fi
+else
+	set_ttl_65
+fi
