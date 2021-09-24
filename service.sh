@@ -44,16 +44,15 @@ mark_traffic_ttl()
    iptables -t mangle -A PREROUTING -i rmnet_data2 -j TTL --ttl-set 65
 
    iptables -t mangle -A PREROUTING -i rmnet_ipa0 -j TTL --ttl-set 65
-}
-route_hotspottraffic_tovpn()
-{
-   iptables -A FORWARD -i tun0 -o swlan0 -j ACCEPT
    
-   iptables -A FORWARD -i tun0 -o swlan0 -m state --state ESTABLISHED,RELATED \
-            -j ACCEPT
-            
-   iptables -t nat -A POSTROUTING -o swlan0 -j MASQUERADE
+   iptables -t mangle -A PREROUTING -i rmnet_mhi0 -j TTL --ttl-set 65
+   
+   iptables -t mangle -A PREROUTING -i usb0 -j TTL --ttl-set 65
+   
+   iptables -t mangle -A PREROUTING -i eth0 -j TTL --ttl-set 65
 }
+
+
 settings put global tether_dun_required false
 
 if [ -x "$(command -v iptables)" ]
@@ -91,10 +90,15 @@ then
          iptables -t mangle -A PREROUTING -i rmnet_data2 -j TTL --ttl-set 65
 
          iptables -t mangle -A PREROUTING -i rmnet_ipa0 -j TTL --ttl-set 65
+         
+         iptables -t mangle -A PREROUTING -i rmnet_mhi0 -j TTL --ttl-set 65
+         
+         iptables -t mangle -A PREROUTING -i usb0 -j TTL --ttl-set 65
+   
+         iptables -t mangle -A PREROUTING -i eth0 -j TTL --ttl-set 65
 	else
 		set_ttl_65
 		mark_traffic_ttl
-        route_hotspottraffic_tovpn
 	fi
 else
 	set_ttl_65
