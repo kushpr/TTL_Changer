@@ -43,13 +43,12 @@ mark_traffic_ttl()
         iptables -t mangle -A PREROUTING -i tun0 -j TTL --ttl-set 65
   
         iptables -t mangle -A PREROUTING -i usb0 -j TTL --ttl-set 65
-
-
+}
 settings put global tether_dun_required 0
 
 if [ -x "$(command -v iptables)" ]
 then
-	if [ `grep -q TTL /proc/net/ip_tables_targets` ]
+	if [ $(grep -q TTL /proc/net/ip_tables_targets) ]
 	then
 	    iptables -t mangle -A POSTROUTING -i ap0 -j TTL --ttl-set 65
 	 
@@ -83,8 +82,8 @@ then
   
         iptables -t mangle -A POSTROUTING -i usb0 -j TTL --ttl-set 65     
 	else
-		set_ttl_65
-		mark_traffic_ttl
+	set_ttl_65
+	mark_traffic_ttl
 	fi
 else
 	set_ttl_65
