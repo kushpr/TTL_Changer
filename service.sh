@@ -7,9 +7,8 @@ set_ttl_65()
   echo 65 > /proc/sys/net/ipv6/conf/all/hop_limit
   echo 1 > /proc/sys/net/ipv4/ip_forward
   echo 1 > /proc/sys/net/ipv4/conf/all/forwarding
-  echo 1 > /proc/sys/net/ipv6/conf/all/forwarding
   echo 1 > /proc/sys/net/ipv4/ip_dynaddr
-  echo 1 > /proc/sys/net/ipv4/conf/all/route_localnet
+  echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6
 }
 mark_traffic_ttl()
 {  
@@ -29,7 +28,7 @@ mark_traffic_ttl()
    
    iptables -t mangle -A PREROUTING -i tun0 -j TTL --ttl-set 65
    
-   iptables -t mangle -A PREROUTING -i ipv6_vti0 -j HL --hl-set 65
+   ip6tables -t mangle -A PREROUTING -i ipv6_vti0 -j HL --hl-set 65
    
    iptables -t mangle -A PREROUTING -i rmnet_data0 -j TTL --ttl-set 65
    
@@ -75,7 +74,7 @@ then
          
          iptables -t mangle -A POSTROUTING -i tun0 -j TTL --ttl-set 65
          
-         iptables -t mangle -A POSTROUTING -i ipv6_vti0 -j HL --hl-set 65
+         ip6tables -t mangle -A POSTROUTING -i ipv6_vti0 -j HL --hl-set 65
          
          iptables -t mangle -A POSTROUTING -i rmnet_data0 -j TTL --ttl-set 65
          
