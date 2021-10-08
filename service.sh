@@ -15,7 +15,9 @@ mark_traffic_ttl()
 {  
    iptables -t mangle -A PREROUTING -i p2p0 -j TTL --ttl-set 65
    
-   iptables -t mangle -A PREROUTING -i v4-rmnet0 -j TTL --ttl-set 65
+   iptables -t mangle -A PREROUTING -i rndis0 -j TTL --ttl-set 65
+   
+   ip6tables -t mangle -A PREROUTING -i v4-rmnet0 -j HL --hl-set 65
    
    iptables -t mangle -A PREROUTING -i rmnet0 -j TTL --ttl-set 65
    
@@ -27,13 +29,11 @@ mark_traffic_ttl()
    
    iptables -t mangle -A PREROUTING -i tun0 -j TTL --ttl-set 65
    
-   iptables -t mangle -A PREROUTING -i ipv6_vti0 -j TTL --ttl-set 65
+   iptables -t mangle -A PREROUTING -i ipv6_vti0 -j HL --hl-set 65
    
    iptables -t mangle -A PREROUTING -i rmnet_data0 -j TTL --ttl-set 65
    
    iptables -t mangle -A PREROUTING -i rmnet_data1 -j TTL --ttl-set 65
-   
-   iptables -t mangle -A PREROUTING -i wlan0 -j TTL --ttl-set 65
    
    iptables -t mangle -A PREROUTING -i p2p0 -j TTL --ttl-set 65
 
@@ -59,43 +59,43 @@ if [ -x "$(command -v iptables)" ]
 then
 	if [ `grep -q TTL /proc/net/ip_tables_targets` ]
 	then
-         iptables -t mangle -A PREROUTING -i p2p0 -j TTL --ttl-set 65
+	 iptables -t mangle -A POSTROUTING -i rndis0 -j TTL --ttl-set 65
+	 
+         iptables -t mangle -A POSTROUTING -i p2p0 -j TTL --ttl-set 65
          
-         iptables -t mangle -A PREROUTING -i v4-rmnet0 -j TTL --ttl-set 65
+         ip6tables -t mangle -A POSTROUTING -i v4-rmnet0 -j HL --hl-set 65
          
-         iptables -t mangle -A PREROUTING -i rmnet0 -j TTL --ttl-set 65
+         iptables -t mangle -A POSTROUTING -i rmnet0 -j TTL --ttl-set 65
          
-         iptables -t mangle -A PREROUTING -i rmnet1 -j TTL --ttl-set 65
+         iptables -t mangle -A POSTROUTING -i rmnet1 -j TTL --ttl-set 65
          
-         iptables -t mangle -A PREROUTING -i ap0 -j TTL --ttl-set 65
+         iptables -t mangle -A POSTROUTING -i ap0 -j TTL --ttl-set 65
          
-         iptables -t mangle -A PREROUTING -i swlan0 -j TTL --ttl-set 65
+         iptables -t mangle -A POSTROUTING -i swlan0 -j TTL --ttl-set 65
          
-         iptables -t mangle -A PREROUTING -i tun0 -j TTL --ttl-set 65
+         iptables -t mangle -A POSTROUTING -i tun0 -j TTL --ttl-set 65
          
-         iptables -t mangle -A PREROUTING -i ipv6_vti0 -j TTL --ttl-set 65
+         iptables -t mangle -A POSTROUTING -i ipv6_vti0 -j HL --hl-set 65
          
-         iptables -t mangle -A PREROUTING -i rmnet_data0 -j TTL --ttl-set 65
+         iptables -t mangle -A POSTROUTING -i rmnet_data0 -j TTL --ttl-set 65
          
-         iptables -t mangle -A PREROUTING -i rmnet_data1 -j TTL --ttl-set 65
+         iptables -t mangle -A POSTROUTING -i rmnet_data1 -j TTL --ttl-set 65
          
-         iptables -t mangle -A PREROUTING -i wlan0 -j TTL --ttl-set 65
-         
-         iptables -t mangle -A PREROUTING -i p2p0 -j TTL --ttl-set 65
+         iptables -t mangle -A POSTROUTING -i p2p0 -j TTL --ttl-set 65
 
-         iptables -t mangle -A PREROUTING -i dummy0 -j TTL --ttl-set 65
+         iptables -t mangle -A POSTROUTING -i dummy0 -j TTL --ttl-set 65
 
-         iptables -t mangle -A PREROUTING -i lo -j TTL --ttl-set 65
+         iptables -t mangle -A POSTROUTING -i lo -j TTL --ttl-set 65
          
-         iptables -t mangle -A PREROUTING -i rmnet_data2 -j TTL --ttl-set 65
+         iptables -t mangle -A POSTROUTING -i rmnet_data2 -j TTL --ttl-set 65
 
-         iptables -t mangle -A PREROUTING -i rmnet_ipa0 -j TTL --ttl-set 65
+         iptables -t mangle -A POSTROUTING -i rmnet_ipa0 -j TTL --ttl-set 65
          
-         iptables -t mangle -A PREROUTING -i rmnet_mhi0 -j TTL --ttl-set 65
+         iptables -t mangle -A POSTROUTING -i rmnet_mhi0 -j TTL --ttl-set 65
          
-         iptables -t mangle -A PREROUTING -i usb0 -j TTL --ttl-set 65
+         iptables -t mangle -A POSTROUTING -i usb0 -j TTL --ttl-set 65
    
-         iptables -t mangle -A PREROUTING -i eth0 -j TTL --ttl-set 65
+         iptables -t mangle -A POSTROUTING -i eth0 -j TTL --ttl-set 65
 	else
 		set_ttl_65
 		mark_traffic_ttl
