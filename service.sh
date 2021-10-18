@@ -31,6 +31,8 @@ mark_traffic_ttl()
         iptables -t mangle -A PREROUTING -i rmnet_data1 -j TTL --ttl-set 65
   
         iptables -t mangle -A PREROUTING -i rmnet_data2 -j TTL --ttl-set 65
+	
+	iptables -t mangle -A PREROUTING -i rmnet_data3 -j TTL --ttl-set 65
   
         iptables -t mangle -A PREROUTING -i rmnet_ipa0 -j TTL --ttl-set 65  
   
@@ -69,6 +71,8 @@ then
         iptables -t mangle -A POSTROUTING -i rmnet_data1 -j TTL --ttl-set 65 
   
         iptables -t mangle -A POSTROUTING -i rmnet_data2 -j TTL --ttl-set 65
+	
+	iptables -t mangle -A POSTROUTING -i rmnet_data3 -j TTL --ttl-set 65
   
         iptables -t mangle -A POSTROUTING -i rmnet_ipa0 -j TTL --ttl-set 65      
   
