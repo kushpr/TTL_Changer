@@ -1,5 +1,5 @@
 #!/system/bin/sh
-MODDIR=${0%/*}
+sleep 15
 
 set_ttl_65()
 {
@@ -12,79 +12,17 @@ set_ttl_65()
 }
 mark_traffic_ttl()
 {  
-        iptables -t mangle -A PREROUTING -i ap0 -j TTL --ttl-set 65
-  
-        iptables -t mangle -A PREROUTING -i dummy0 -j TTL --ttl-set 65
-
-        iptables -t mangle -A PREROUTING -i eth0 -j TTL --ttl-set 65
-
-        iptables -t mangle -A PREROUTING -i lo -j TTL --ttl-set 65
-  
-        iptables -t mangle -A PREROUTING -i p2p0 -j TTL --ttl-set 65
-  
-        iptables -t mangle -A PREROUTING -i rmnet0 -j TTL --ttl-set 65
-  
-        iptables -t mangle -A PREROUTING -i rmnet1 -j TTL --ttl-set 65
-   
-        iptables -t mangle -A PREROUTING -i rmnet_data0 -j TTL --ttl-set 65
-   
-        iptables -t mangle -A PREROUTING -i rmnet_data1 -j TTL --ttl-set 65
-  
-        iptables -t mangle -A PREROUTING -i rmnet_data2 -j TTL --ttl-set 65
-	
-	iptables -t mangle -A PREROUTING -i rmnet_data3 -j TTL --ttl-set 65
-  
-        iptables -t mangle -A PREROUTING -i rmnet_ipa0 -j TTL --ttl-set 65  
-  
-        iptables -t mangle -A PREROUTING -i rmnet_mhi0 -j TTL --ttl-set 65  
-  
-        iptables -t mangle -A PREROUTING -i rndis0 -j TTL --ttl-set 65
-  
-        iptables -t mangle -A PREROUTING -i swlan0 -j TTL --ttl-set 65
-  
-        iptables -t mangle -A PREROUTING -i tun0 -j TTL --ttl-set 65
-  
-        iptables -t mangle -A PREROUTING -i usb0 -j TTL --ttl-set 65
+for i in $(ifconfig -a | sed 's/[ \t].*//;/^$/d'); do (iptables -t mangle -A PREROUTING -i $i -j TTL --ttl-set 65); done
 }
 settings put global tether_dun_required 0
+    
+settings put system tether_entitlement_check_state 0
 
 if [ -x "$(command -v iptables)" ]
 then
 	if [ $(grep -q TTL /proc/net/ip_tables_targets) ]
 	then
-	    iptables -t mangle -A POSTROUTING -i ap0 -j TTL --ttl-set 65
-	 
-        iptables -t mangle -A POSTROUTING -i dummy0 -j TTL --ttl-set 65
-  
-        iptables -t mangle -A POSTROUTING -i eth0 -j TTL --ttl-set 65
-  
-        iptables -t mangle -A POSTROUTING -i lo -j TTL --ttl-set 65
-  
-        iptables -t mangle -A POSTROUTING -i p2p0 -j TTL --ttl-set 65
-  
-        iptables -t mangle -A POSTROUTING -i rmnet0 -j TTL --ttl-set 65
-  
-        iptables -t mangle -A POSTROUTING -i rmnet1 -j TTL --ttl-set 65  
-  
-        iptables -t mangle -A POSTROUTING -i rmnet_data0 -j TTL --ttl-set 65
-  
-        iptables -t mangle -A POSTROUTING -i rmnet_data1 -j TTL --ttl-set 65 
-  
-        iptables -t mangle -A POSTROUTING -i rmnet_data2 -j TTL --ttl-set 65
-	
-	iptables -t mangle -A POSTROUTING -i rmnet_data3 -j TTL --ttl-set 65
-  
-        iptables -t mangle -A POSTROUTING -i rmnet_ipa0 -j TTL --ttl-set 65      
-  
-        iptables -t mangle -A POSTROUTING -i rmnet_mhi0 -j TTL --ttl-set 65        
-  
-        iptables -t mangle -A POSTROUTING -i rndis0 -j TTL --ttl-set 65
-  
-        iptables -t mangle -A POSTROUTING -i swlan0 -j TTL --ttl-set 65
-  
-        iptables -t mangle -A POSTROUTING -i tun0 -j TTL --ttl-set 65  
-  
-        iptables -t mangle -A POSTROUTING -i usb0 -j TTL --ttl-set 65     
+		for i in $(ifconfig -a | sed 's/[ \t].*//;/^$/d'); do (iptables -t mangle -A POSTROUTING -i $i -j TTL --ttl-set 65); done
 	else
 	set_ttl_65
 	mark_traffic_ttl
