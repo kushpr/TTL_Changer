@@ -1,6 +1,6 @@
 id=ttl
 name=TTL
-version=V1.0
-versionCode=10
-author=KushPR Afaneh92 『 BlassGO! 』
-description=This module patches your devices IPV4 & IPV6 to 65.It also disables tethering notification from being sent to your carrier.
+version=V2.0
+versionCode=20
+author=@KushPR @Afaneh92 @BlassGO @bklyn_ali
+description=This module patches your devices interfaces to 65 & disables IPv6. It also disables tethering notifications from being sent to your carrier.
